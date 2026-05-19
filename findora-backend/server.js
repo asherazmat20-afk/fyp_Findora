@@ -13,6 +13,7 @@ const server = http.createServer(app);
 const defaultOrigins = [
   "http://localhost:3000",
   "https://fyp-findora.vercel.app",
+  "https://hyp-findora.vercel.app",
 ];
 
 const parseAllowedOrigins = () => {
@@ -29,7 +30,6 @@ const allowedOrigins = parseAllowedOrigins();
 const isOriginAllowed = (origin) => {
   if (!origin) return true;
   if (allowedOrigins.includes(origin)) return true;
-  // Vercel preview/production subdomains for this app
   if (/^https:\/\/[\w-]+(--[\w-]+)?\.vercel\.app$/.test(origin)) return true;
   return false;
 };
