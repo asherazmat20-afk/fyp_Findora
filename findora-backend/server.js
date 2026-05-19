@@ -9,9 +9,16 @@ const connectDB = require("./config/db");
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://fyp-findora.vercel.app", 
+];
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -19,7 +26,7 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("sendMessage", (data) => {
-    socket.broadcast.emit("receiveMessage", data); // deliver to other users, sender already updates locally
+    socket.broadcast.emit("receiveMessage", data);
   });
 
   socket.on("disconnect", () => {
@@ -27,7 +34,10 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
@@ -39,6 +49,7 @@ app.use("/api/items", require("./routes/itemRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
 
-server.listen(5000, () => {
-  console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
