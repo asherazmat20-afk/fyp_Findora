@@ -6,7 +6,7 @@ function AdminRoute({ children }) {
     sessionStorage.getItem("role") === "admin";
 
   if (!isAdmin) {
-    return <Navigate to="/admin-login" />;
+    return <Navigate to="/login?as=admin" replace />;
   }
 
   return children;

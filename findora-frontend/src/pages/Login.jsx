@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "../config/api";
 import { motion } from "framer-motion";
@@ -7,8 +7,10 @@ import UiToast from "../components/UiToast";
 
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const formRef = useRef(null);
 
+  const [loginType, setLoginType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,11 +38,15 @@ function Login() {
 
     resetForm();
 
+    if (searchParams.get("as") === "admin") {
+      setLoginType("admin");
+    }
+
     if (token) {
       if (role === "admin") navigate("/admin");
       else navigate("/dashboard");
     }
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   useEffect(() => {
     // Handles browser back-forward cache restore where inputs may come back filled.
@@ -59,6 +65,11 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!loginType) {
+      setError("Please choose how you want to log in");
+      return;
+    }
 
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
@@ -86,12 +97,28 @@ function Login() {
         return;
       }
 
+      const isAdminAccount = data.user?.role === "admin";
+
+      if (loginType === "admin" && !isAdminAccount) {
+        const message = "This account is not an admin. Use “Log in as a user” instead.";
+        setError(message);
+        showToast(message);
+        return;
+      }
+
+      if (loginType === "user" && isAdminAccount) {
+        const message = "Admin accounts must use “Log in as an admin”.";
+        setError(message);
+        showToast(message);
+        return;
+      }
+
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("userId", data.user._id);
       sessionStorage.setItem("userName", data.user.fullName);
       sessionStorage.setItem("role", data.user.role);
 
-      if (data.user.role === "admin") {
+      if (loginType === "admin") {
         sessionStorage.setItem("isAdmin", "true");
         showToast("Welcome admin");
         resetForm();
@@ -111,12 +138,25 @@ function Login() {
     }
   };
 
+  const selectLoginType = (type) => {
+    setLoginType(type);
+    setError("");
+  };
+
+  const isAdminLogin = loginType === "admin";
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 sm:p-6 flex items-center justify-center">
         <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-2xl shadow-xl overflow-hidden border border-blue-100">
           {/* Left panel */}
-          <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-blue-700 to-indigo-700 text-white p-8">
+          <motion.div
+            className={`hidden lg:flex flex-col justify-between text-white p-8 ${
+              isAdminLogin
+                ? "bg-gradient-to-br from-rose-700 to-red-800"
+                : "bg-gradient-to-br from-blue-700 to-indigo-700"
+            }`}
+          >
             <div>
               <h2 className="text-3xl font-extrabold leading-tight">
                 Welcome back to
@@ -139,7 +179,7 @@ function Login() {
                 Verification-backed trust system
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right panel */}
           <motion.div
@@ -148,9 +188,69 @@ function Login() {
             className="p-6 sm:p-8"
           >
             <h3 className="text-2xl font-bold text-slate-800">Login</h3>
-            <p className="text-sm text-slate-500 mt-1 mb-6">
-              Access your dashboard and continue helping the community
+
+            {!loginType ? (
+              <div className="mt-6 space-y-4">
+                <p className="text-sm text-slate-500">
+                  Choose how you want to sign in
+                </p>
+                <button
+                  type="button"
+                  onClick={() => selectLoginType("user")}
+                  className="w-full py-3 px-4 rounded-xl border-2 border-blue-200 bg-blue-50 text-blue-800 font-semibold hover:bg-blue-100 transition text-left"
+                >
+                  <span className="block text-base">Log in as a user</span>
+                  <span className="block text-xs font-normal text-blue-600 mt-1">
+                    Report, search, and recover lost & found items
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => selectLoginType("admin")}
+                  className="w-full py-3 px-4 rounded-xl border-2 border-rose-200 bg-rose-50 text-rose-800 font-semibold hover:bg-rose-100 transition text-left"
+                >
+                  <span className="block text-base">Log in as an admin</span>
+                  <span className="block text-xs font-normal text-rose-600 mt-1">
+                    Moderate reports and manage the platform
+                  </span>
+                </button>
+                <p className="text-center text-sm text-slate-600 pt-2">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    to="/signup"
+                    className="text-blue-600 font-semibold hover:underline"
+                  >
+                    Create Account
+                  </Link>
+                </p>
+              </div>
+            ) : (
+              <>
+            <p className="text-sm text-slate-500 mt-1 mb-2">
+              {isAdminLogin
+                ? "Admin moderation console"
+                : "Access your dashboard and continue helping the community"}
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                setLoginType(null);
+                setError("");
+              }}
+              className="text-xs text-slate-500 hover:text-slate-700 mb-4 underline"
+            >
+              ← Change login type
+            </button>
+
+            <span
+              className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-4 ${
+                isAdminLogin
+                  ? "bg-rose-100 text-rose-700"
+                  : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {isAdminLogin ? "Admin login" : "User login"}
+            </span>
 
             <form
               ref={formRef}
@@ -231,31 +331,28 @@ function Login() {
                 className={`w-full py-2.5 rounded-xl text-white font-medium transition ${
                   loading
                     ? "bg-slate-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    : isAdminLogin
+                      ? "bg-rose-600 hover:bg-rose-700"
+                      : "bg-blue-600 hover:bg-blue-700"
                 }`}
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 
-            <p className="mt-5 text-center text-sm text-slate-600">
-              Don&apos;t have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-blue-600 font-semibold hover:underline"
-              >
-                Create Account
-              </Link>
-            </p>
-
-            <p className="mt-2 text-center">
-              <Link
-                to="/admin-login"
-                className="text-xs sm:text-sm text-slate-500 hover:underline"
-              >
-                Admin Login
-              </Link>
-            </p>
+            {!isAdminLogin && (
+              <p className="mt-5 text-center text-sm text-slate-600">
+                Don&apos;t have an account?{" "}
+                <Link
+                  to="/signup"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Create Account
+                </Link>
+              </p>
+            )}
+              </>
+            )}
           </motion.div>
         </div>
       </div>

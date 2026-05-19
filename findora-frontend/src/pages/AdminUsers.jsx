@@ -31,7 +31,7 @@ function AdminUsers() {
 
   const handleUnauthorized = useCallback(() => {
     sessionStorage.clear();
-    navigate("/admin-login");
+    navigate("/login?as=admin");
   }, [navigate]);
 
   const fetchUsers = useCallback(async () => {
@@ -40,7 +40,7 @@ function AdminUsers() {
 
     try {
       if (!token || role !== "admin") {
-        navigate("/admin-login");
+        navigate("/login?as=admin");
         return;
       }
 

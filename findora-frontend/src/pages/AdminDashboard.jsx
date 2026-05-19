@@ -38,7 +38,7 @@ function AdminDashboard() {
 
   const handleUnauthorized = useCallback(() => {
     sessionStorage.clear();
-    navigate("/login");
+    navigate("/login?as=admin");
   }, [navigate]);
 
   const priorityScore = (item) => {
@@ -57,7 +57,7 @@ function AdminDashboard() {
 
     try {
       if (!token || role !== "admin") {
-        navigate("/login");
+        navigate("/login?as=admin");
         return;
       }
 
