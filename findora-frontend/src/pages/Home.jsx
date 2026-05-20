@@ -12,7 +12,7 @@ function Home() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
               <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight text-slate-900">
-                Smart Lost & Found, <span className="text-blue-600">Reimagined</span>
+                Smart<span className="text-blue-600">Lost & Found</span> Platform
               </h1>
               <p className="mt-4 text-slate-600 text-lg max-w-xl">
                 Report, match, and recover items faster with a clean experience, smart filters,
