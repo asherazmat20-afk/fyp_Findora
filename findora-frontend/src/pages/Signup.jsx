@@ -130,7 +130,7 @@ function Signup() {
             </div>
 
             <div className="space-y-3 text-sm">
-              <div className="bg-white/10 rounded-lg p-3">AI-assisted matching flow</div>
+              <div className="bg-white/10 rounded-lg p-3">Smart matching flow</div>
               <div className="bg-white/10 rounded-lg p-3">Secure in-app chat</div>
               <div className="bg-white/10 rounded-lg p-3">Community trust and verification</div>
             </div>

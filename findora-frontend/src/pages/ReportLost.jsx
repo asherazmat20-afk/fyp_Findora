@@ -60,7 +60,7 @@ function ReportLost() {
       });
 
       const data = await res.json();
-      if (!res.ok) return showToast(data.error || "AI autofill failed");
+      if (!res.ok) return showToast(data.error || "Autofill failed");
 
       setFormData((prev) => ({
         ...prev,
@@ -88,9 +88,9 @@ function ReportLost() {
         setAiTags(enrichData.aiTags);
       }
 
-      showToast(`AI autofill ready (${data.parsed.confidence} confidence)`);
+      showToast(`Autofill ready (${data.parsed.confidence} confidence)`);
     } catch (e) {
-      showToast("AI autofill failed");
+      showToast("Autofill failed");
     }
   };
 
@@ -292,7 +292,7 @@ function ReportLost() {
                         onClick={handleAiAutofill}
                         className="mt-2 px-3 py-2 bg-violet-600 text-white rounded-lg text-sm"
                       >
-                        AI Autofill
+                        Autofill
                       </button>
                     </div>
                     <input
@@ -468,7 +468,7 @@ function ReportLost() {
               </div>
             ) : (
               <div className="text-sm text-slate-500 bg-slate-50 border rounded-xl p-4">
-                No high-quality matches yet. Submit more precise details (location, date, image) for better AI matching.
+                No high-quality matches yet. Submit more precise details (location, date, image) for better matching.
               </div>
             )}
           </div>

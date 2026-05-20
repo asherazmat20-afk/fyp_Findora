@@ -369,7 +369,7 @@ function AdminDashboard() {
                           </p>
                         </div>
                         <p>
-                          <b>AI Risk:</b>{" "}
+                          <b>Risk:</b>{" "}
                           <span
                             className={
                               item.aiSignals?.riskLevel === "high"
