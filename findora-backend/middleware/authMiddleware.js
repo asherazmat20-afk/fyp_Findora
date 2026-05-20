@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // { id, role, iat, exp }
+    req.user = decoded; 
     next();
   } catch (error) {
     return res.status(401).json({ error: "Unauthorized: invalid token" });
